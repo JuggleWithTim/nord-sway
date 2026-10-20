@@ -1,0 +1,7 @@
+#!/bin/sh
+export QT_QPA_PLATFORMTHEME=kde
+if pgrep -u "$(id -u)" -x wofi >/dev/null; then
+    pkill -u "$(id -u)" -x wofi
+else
+    exec wofi --show drun
+fi

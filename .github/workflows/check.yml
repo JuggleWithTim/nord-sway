@@ -1,0 +1,11 @@
+name: Check portable installer
+on: [push, pull_request]
+jobs:
+  install-and-restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v

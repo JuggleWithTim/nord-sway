@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Nord Desktop Guide
+Exec=foot --app-id=nord-guide --title="Nord / desktop guide" @BIN@/nord-guide
+Icon=@DATA@/nord-sway/assets/icons/help.png
+Terminal=false
+Categories=Utility;

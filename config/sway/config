@@ -1,0 +1,8 @@
+# Nord / desktop edition. Start from the distribution's Sway keybindings.
+include /etc/sway/config
+set $menu @BIN@/nord-launcher
+bindsym --no-warn $mod+d exec $menu
+bindsym --no-repeat --release Super_L exec $menu
+bindsym --no-repeat --release Super_R exec $menu
+include "@CONFIG@/sway/nord.conf"
+bindsym --no-warn $mod+Shift+t exec @BIN@/nord-theme menu

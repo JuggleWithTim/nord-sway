@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Nord Desktop Tools
+Exec=@BIN@/nord-session
+Icon=@DATA@/nord-sway/assets/icons/buildmenu.png
+Terminal=false
+Categories=Utility;

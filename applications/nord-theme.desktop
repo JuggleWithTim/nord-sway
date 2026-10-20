@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Desktop Theme — Nord / Previous
+Exec=@BIN@/nord-theme menu
+Icon=@DATA@/nord-sway/assets/icons/garderob.png
+Terminal=false
+Categories=Utility;

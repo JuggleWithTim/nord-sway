@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+"""Nord desktop tools with the game's original action icons."""
+import subprocess
+from pathlib import Path
+
+ICONS = Path('@DATA@/nord-sway/assets/icons')
+
+def menu(title, entries, height):
+    items = ''.join(f'img:{ICONS}/{icon}.png:text:{label}\n' for label, icon in entries)
+    result = subprocess.run(['wofi', '--show', 'dmenu', '--prompt', title,
+                             '--height', str(height), '--cache-file', '/dev/null', '--allow-images',
+                             '--define', 'dmenu-parse_action=true'], input=items, capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else ''
+
+choice = menu('Nord / desktop tools', [('Desktop guide', 'help'), ('Take screenshot', 'screenshot'),
+              ('Change theme', 'garderob'), ('Reload desktop', 'rotate'),
+              ('Dismiss notifications', 'chatlog'), ('Log out…', 'forward')], 540)
+commands = {
+    'Desktop guide': ['foot', '--app-id=nord-guide', '--title=Nord / desktop guide', '@BIN@/nord-guide'],
+    'Take screenshot': ['@BIN@/nord-shot'],
+    'Change theme': ['@BIN@/nord-theme', 'menu'],
+    'Reload desktop': ['swaymsg', 'reload'],
+    'Dismiss notifications': ['makoctl', 'dismiss', '--all'],
+}
+if choice in commands:
+    subprocess.run(commands[choice], check=False)
+elif choice == 'Log out…':
+    if menu('End this Sway session?', [('Cancel', 'back'), ('Log out', 'forward')], 250) == 'Log out':
+        subprocess.run(['swaymsg', 'exit'], check=False)

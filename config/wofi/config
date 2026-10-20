@@ -1,0 +1,15 @@
+show=drun
+location=center
+width=660
+height=540
+prompt=Find an application…
+allow_images=true
+image_size=32
+matching=fuzzy
+insensitive=true
+hide_scroll=true
+no_actions=true
+gtk_dark=false
+normal_window=false
+layer=overlay
+term=foot

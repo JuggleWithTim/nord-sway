@@ -1,0 +1,4 @@
+#!/bin/sh
+mkdir -p '@HOME@/Pictures/Screenshots'
+file="@HOME@/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
+grim "$file" && gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications --method org.freedesktop.Notifications.Notify 'Nord' 0 'camera-photo' 'Screenshot saved' "$file" '[]' '{}' 4000 >/dev/null

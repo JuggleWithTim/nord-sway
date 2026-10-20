@@ -1,0 +1,56 @@
+@import 'colors.css';
+
+/* Original Nord button artwork */
+button:not(.flat):not(.circular):not(.image-button) {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+button:not(.flat):not(.circular):not(.image-button):hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+button:not(.flat):not(.circular):not(.image-button):active, button:not(.flat):not(.circular):not(.image-button):checked {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_down_left.png'), url('@DATA@/nord-sway/assets/buttons/button_down_right.png'), url('@DATA@/nord-sway/assets/buttons/button_down_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+button:not(.flat):not(.circular):not(.image-button):disabled {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_disabled_left.png'), url('@DATA@/nord-sway/assets/buttons/button_disabled_right.png'), url('@DATA@/nord-sway/assets/buttons/button_disabled_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+button label { background: transparent; border-image: none; box-shadow: none; }

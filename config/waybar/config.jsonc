@@ -1,0 +1,114 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 54,
+  "margin-top": 12,
+  "margin-left": 18,
+  "margin-right": 18,
+  "spacing": 0,
+  "modules-left": [
+    "custom/launch",
+    "sway/workspaces",
+    "custom/help",
+    "custom/screenshot",
+    "sway/mode",
+    "sway/window"
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  "modules-right": [
+    "cpu",
+    "memory",
+    "network",
+    "pulseaudio",
+    "tray",
+    "custom/theme",
+    "custom/session"
+  ],
+  "custom/launch": {
+    "format": "Nord",
+    "tooltip-format": "Applications \u00b7 Super",
+    "on-click": "@BIN@/nord-launcher"
+  },
+  "sway/workspaces": {
+    "format": "{name}",
+    "disable-scroll": true,
+    "all-outputs": false,
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    }
+  },
+  "sway/window": {
+    "format": "{title}",
+    "max-length": 28,
+    "tooltip": false
+  },
+  "sway/mode": {
+    "format": "{}"
+  },
+  "clock": {
+    "format": "{:%a %d %b  \u2022  %H:%M}",
+    "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>"
+  },
+  "cpu": {
+    "format": "CPU  {usage}%",
+    "interval": 5,
+    "tooltip": true
+  },
+  "memory": {
+    "format": "RAM  {used:.1f}G",
+    "interval": 10,
+    "tooltip-format": "Memory: {used:.1f} / {total:.1f} GiB"
+  },
+  "network": {
+    "format-ethernet": "Online",
+    "format-wifi": "{essid}",
+    "format-disconnected": "Offline",
+    "tooltip-format": "{ifname} \u00b7 {ipaddr}",
+    "max-length": 15
+  },
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "\uf026  Muted",
+    "format-icons": {
+      "default": [
+        "\uf026",
+        "\uf027",
+        "\uf028"
+      ]
+    },
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +2%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -2%",
+    "tooltip-format": "{desc}"
+  },
+  "tray": {
+    "icon-size": 18,
+    "spacing": 10
+  },
+  "custom/session": {
+    "format": " ",
+    "tooltip-format": "Desktop tools \u00b7 Super+Esc",
+    "on-click": "@BIN@/nord-session"
+  },
+  "custom/theme": {
+    "format": " ",
+    "tooltip-format": "Change desktop theme \u00b7 Super+Shift+T",
+    "on-click": "@BIN@/nord-theme menu"
+  },
+  "custom/help": {
+    "format": " ",
+    "tooltip-format": "Desktop guide \u00b7 Super+F1",
+    "on-click": "foot --app-id=nord-guide --title=\"Nord / desktop guide\" @BIN@/nord-guide"
+  },
+  "custom/screenshot": {
+    "format": " ",
+    "tooltip-format": "Save a screenshot \u00b7 Print",
+    "on-click": "@BIN@/nord-shot"
+  }
+}

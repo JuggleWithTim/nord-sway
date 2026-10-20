@@ -1,0 +1,35 @@
+#!/bin/bash
+clear
+printf '[38;2;49;94;138m'
+cat <<'EOF'
+
+  N o r d                                      DESKTOP GUIDE
+
+  Welcome to your own little world.
+  Pearl panels, blue steel, lime and a little carrot orange.
+
+  ───────────────────────────────────────────────────────────
+
+  Super                   Find an application
+  Super + Enter           Open a terminal
+  Super + 1 … 9           Change workspace
+  Super + Shift + 1 … 9   Send window to workspace
+  Super + arrows          Focus a window
+  Super + drag            Move a floating window
+  Super + right-drag      Resize a floating window
+  Super + F               Fullscreen
+  Super + Shift + Space   Float / tile
+  Super + R               Resize mode · Esc to finish
+  Print                   Save screenshot
+  Super + N               Dismiss notification
+  Super + Esc             Desktop tools
+  Super + Shift + T       Choose Nord or previous desktop
+
+  ───────────────────────────────────────────────────────────
+
+  Click the volume to mute. Scroll it to adjust sound.
+  Your previous desktop is saved before switching.
+
+EOF
+printf '[0m  Press Enter to close.'
+read -r

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/nord-sway"
+mkdir -p "$cache"
+exec 9>"${XDG_RUNTIME_DIR:?Sway session is required}/nord-sway-services.lock"
+flock 9
+pkill -u "$(id -u)" -x waybar || true
+pkill -u "$(id -u)" -x mako || true
+waybar -c '@CONFIG@/waybar/config.jsonc' -s '@CONFIG@/waybar/style.css' >>"$cache/waybar.log" 2>&1 9>&- &
+mako >>"$cache/mako.log" 2>&1 9>&- &

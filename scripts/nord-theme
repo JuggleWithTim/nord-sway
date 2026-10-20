@@ -1,0 +1,252 @@
+#!/usr/bin/env python3
+"""User-local installation and reversible desktop profiles. Standard library only."""
+import argparse
+import configparser
+import datetime
+import fcntl
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+CONFIG_FILES = ['sway/config', 'sway/nord.conf', 'waybar/config.jsonc', 'waybar/style.css',
+                'wofi/config', 'wofi/style.css', 'mako/config', 'foot/foot.ini',
+                'gtk-3.0/settings.ini', 'gtk-3.0/gtk.css', 'gtk-3.0/colors.css',
+                'gtk-4.0/settings.ini', 'gtk-4.0/gtk.css', 'gtk-4.0/colors.css', 'kdeglobals']
+PREF_KEYS = ['gtk-theme', 'icon-theme', 'font-name', 'color-scheme']
+
+def command(*args, **kwargs):
+    return subprocess.run(args, **kwargs)
+
+class Desktop:
+    def __init__(self, args):
+        self.home = Path(args.target_home).expanduser().resolve() if args.target_home else Path.home()
+        self.staged = self.home != Path.home()
+        self.offline = args.offline or self.staged
+        def directory(env, default):
+            return Path(os.environ.get(env, default)) if not self.staged else Path(default)
+        self.config = directory('XDG_CONFIG_HOME', self.home / '.config')
+        self.data = directory('XDG_DATA_HOME', self.home / '.local/share')
+        self.state = directory('XDG_STATE_HOME', self.home / '.local/state') / 'nord-sway'
+        self.bin = self.home / '.local/bin'
+        checkout = Path(__file__).resolve().parent.parent
+        self.package = checkout if (checkout / 'config').is_dir() else self.data / 'nord-sway'
+        self.settings = self.state / 'state.json'
+        self.files = {name: self.config / name for name in CONFIG_FILES}
+        self.args = args
+
+    def state_info(self):
+        return json.loads(self.settings.read_text()) if self.settings.exists() else {'active': 'previous'}
+
+    def preferences(self):
+        if self.offline or not shutil.which('gsettings'): return {}
+        return {k: command('gsettings', 'get', 'org.gnome.desktop.interface', k, capture_output=True, text=True, check=True).stdout.strip() for k in PREF_KEYS}
+
+    def snapshot(self, destination):
+        destination.mkdir(parents=True)
+        manifest = {}
+        for name, path in self.files.items():
+            if path.is_symlink():
+                manifest[name] = {'kind': 'symlink', 'target': os.readlink(path)}
+            elif path.is_file():
+                saved = destination / 'files' / name
+                saved.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(path, saved)
+                manifest[name] = {'kind': 'file'}
+            else: manifest[name] = {'kind': 'absent'}
+        (destination / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        (destination / 'preferences.json').write_text(json.dumps(self.preferences(), indent=2) + '\n')
+
+    def restore_files(self, source):
+        manifest = json.loads((source / 'manifest.json').read_text())
+        for name, entry in manifest.items():
+            path = self.files[name]
+            if path.exists() or path.is_symlink(): path.unlink()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if entry['kind'] == 'file': shutil.copy2(source / 'files' / name, path)
+            elif entry['kind'] == 'symlink': path.symlink_to(entry['target'])
+        if not self.offline and shutil.which('gsettings'):
+            for key, value in json.loads((source / 'preferences.json').read_text()).items():
+                command('gsettings', 'set', 'org.gnome.desktop.interface', key, value, check=True)
+
+    def render(self, text, font):
+        for token, value in {'@HOME@': self.home, '@BIN@': self.bin, '@DATA@': self.data,
+                             '@CONFIG@': self.config, '@UI_FONT@': font}.items():
+            text = text.replace(token, str(value))
+        return text
+
+    def install_payload(self):
+        destination = self.data / 'nord-sway'
+        if self.package.resolve() != destination.resolve():
+            for name in ['assets', 'config', 'scripts', 'applications']:
+                shutil.copytree(self.package / name, destination / name, dirs_exist_ok=True)
+            for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md']:
+                shutil.copy2(self.package / name, destination / name)
+        self.package = destination
+        font = 'DejaVu Sans'
+        if self.args.game_source:
+            startup = Path(self.args.game_source).expanduser() / 'public/legacy/startup'
+            fonts = self.data / 'fonts/nord-sway'
+            fonts.mkdir(parents=True, exist_ok=True)
+            for name in ['DIN-Medium.ttf', 'Verdana.ttf', 'Verdana Bold.ttf']:
+                shutil.copy2(startup / name, fonts / name)
+            font = 'DIN-Medium'
+            if not self.offline and shutil.which('fc-cache'): command('fc-cache', '-f', str(fonts), check=True)
+        elif shutil.which('fc-match'):
+            found = command('fc-match', '-f', '%{family}', ':family=DIN-Medium', capture_output=True, text=True).stdout
+            if found == 'DIN-Medium': font = 'DIN-Medium'
+        self.bin.mkdir(parents=True, exist_ok=True)
+        for source in (self.package / 'scripts').iterdir():
+            if not source.is_file(): continue
+            target = self.bin / source.name
+            target.write_text(self.render(source.read_text(), font))
+            target.chmod(0o755)
+        for source in (self.package / 'applications').glob('*.desktop'):
+            target = self.data / 'applications' / source.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(self.render(source.read_text(), font))
+        return font
+
+    def deploy(self):
+        font = self.install_payload()
+        for name in CONFIG_FILES:
+            if name == 'kdeglobals': continue
+            source = self.package / 'config' / name
+            target = self.config / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.is_symlink(): target.unlink()
+            if name.endswith('settings.ini') and target.exists():
+                # Keep unrelated GTK preferences such as cursor settings.
+                cfg = configparser.ConfigParser(interpolation=None, strict=False); cfg.optionxform = str
+                cfg.read(target)
+                if 'Settings' not in cfg: cfg['Settings'] = {}
+                incoming = configparser.ConfigParser(); incoming.optionxform = str
+                incoming.read_string(self.render(source.read_text(), font))
+                cfg['Settings'].update(incoming['Settings'])
+                with target.open('w') as f: cfg.write(f, space_around_delimiters=False)
+            else: target.write_text(self.render(source.read_text(), font))
+        local = self.config / 'sway/nord-local.conf'
+        if not local.exists(): shutil.copy2(self.package / 'config/sway/nord-local.conf.example', local)
+        scheme = self.data / 'color-schemes/Nord.colors'
+        scheme.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(self.package / 'config/Nord.colors', scheme)
+        palette = configparser.ConfigParser(interpolation=None, strict=False); palette.optionxform = str
+        target = self.config / 'kdeglobals'
+        palette.read(target)
+        colors = configparser.ConfigParser(interpolation=None); colors.optionxform = str; colors.read(scheme)
+        for section in colors.sections():
+            if section != 'General': palette[section] = dict(colors[section])
+        if 'General' not in palette: palette['General'] = {}
+        palette['General'].update({'ColorScheme': 'Nord', 'AccentColor': '179,213,135', 'font': font + ',11,-1,5,50,0,0,0,0,0'})
+        if 'Icons' not in palette: palette['Icons'] = {}
+        palette['Icons']['Theme'] = 'Nord'
+        if target.is_symlink(): target.unlink()
+        with target.open('w') as f: palette.write(f, space_around_delimiters=False)
+        self.build_icons()
+        if not self.offline and shutil.which('gsettings'):
+            for key, value in {'gtk-theme': 'Adwaita', 'icon-theme': 'Nord', 'font-name': font + ' 11', 'color-scheme': 'prefer-light'}.items():
+                command('gsettings', 'set', 'org.gnome.desktop.interface', key, value, check=True)
+
+    def build_icons(self):
+        theme = self.data / 'icons/Nord'
+        theme.mkdir(parents=True, exist_ok=True)
+        sections = []
+        roots = [self.data / 'icons/Papirus', Path('/usr/share/icons/Papirus'), Path('/usr/local/share/icons/Papirus')]
+        papirus = next((p for p in roots if p.is_dir()), None)
+        if papirus:
+            for source in papirus.glob('*x*/places'):
+                dest = theme / source.parent.name / 'places'
+                dest.mkdir(parents=True, exist_ok=True)
+                for path in source.glob('*.svg'):
+                    # Resolve generic aliases such as inode-directory as well as folder.
+                    resolved = path.resolve()
+                    if not resolved.exists(): continue
+                    if path.is_symlink() and 'folder' in resolved.name:
+                        suffix = path.name.removeprefix('folder-')
+                        candidate = source / ('folder-orange-' + suffix) if path.name.startswith('folder-') else source / 'folder-orange.svg'
+                        if candidate.exists(): shutil.copy2(candidate.resolve(), dest / path.name)
+                    if path.name in ['folder.svg', 'inode-directory.svg'] and (source / 'folder-orange.svg').exists():
+                        shutil.copy2((source / 'folder-orange.svg').resolve(), dest / path.name)
+                if any(dest.iterdir()): sections.append((source.parent.name + '/places', source.parent.name))
+        apps = theme / '32x32/apps'; apps.mkdir(parents=True, exist_ok=True)
+        aliases = {'help-browser': 'help', 'preferences-desktop-theme': 'garderob', 'preferences-system': 'playerinfo',
+                   'camera-photo': 'screenshot', 'accessories-screenshot': 'screenshot', 'go-home': 'home',
+                   'go-previous': 'back', 'go-next': 'forward', 'view-refresh': 'rotate', 'window-close': 'closewindow'}
+        for name, icon in aliases.items(): shutil.copy2(self.package / 'assets/icons' / (icon + '.png'), apps / (name + '.png'))
+        cfg = configparser.ConfigParser(); cfg.optionxform = str
+        cfg['Icon Theme'] = {'Name': 'Nord', 'Inherits': 'Papirus,Adwaita,hicolor', 'Directories': ','.join(p for p, _ in sections) + (',' if sections else '') + '32x32/apps'}
+        for section, size in sections:
+            cfg[section] = {'Size': size.split('x')[0], 'Context': 'Places', 'Type': 'Fixed'}
+            if '@2x' in size: cfg[section]['Scale'] = '2'
+        cfg['32x32/apps'] = {'Size': '32', 'Context': 'Applications', 'Type': 'Fixed'}
+        with (theme / 'index.theme').open('w') as f: cfg.write(f, space_around_delimiters=False)
+        if not self.offline and shutil.which('gtk-update-icon-cache'):
+            command('gtk-update-icon-cache', '-f', '-t', str(theme), stdout=subprocess.DEVNULL, check=True)
+
+    def reload(self):
+        if self.offline: return
+        if shutil.which('sway'):
+            result = command('sway', '--validate', '-c', str(self.config / 'sway/config'), capture_output=True, text=True)
+            if result.returncode: raise RuntimeError(result.stderr.strip())
+        if os.environ.get('SWAYSOCK'):
+            result = command('swaymsg', '-r', 'reload', capture_output=True, text=True, check=True)
+            if not all(item.get('success') for item in json.loads(result.stdout)): raise RuntimeError('Sway reload failed')
+        if shutil.which('gdbus'):
+            for change in ['0', '1', '4']:
+                command('gdbus', 'emit', '--session', '--object-path', '/KGlobalSettings', '--signal', 'org.kde.KGlobalSettings.notifyChange', change, '0', stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    def switch(self, target):
+        info = self.state_info()
+        if info['active'] == target:
+            print(target + ' is already active.'); return
+        stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+        archive = self.state / 'backups' / (stamp + '-' + info['active'])
+        self.snapshot(archive)
+        info[info['active']] = str(archive)
+        try:
+            if target in info: self.restore_files(Path(info[target]))
+            elif target == 'nord': self.deploy()
+            else: raise RuntimeError('No previous desktop has been saved')
+            self.reload()
+        except Exception:
+            self.restore_files(archive)
+            if not self.offline and os.environ.get('SWAYSOCK'): command('swaymsg', 'reload', stdout=subprocess.DEVNULL)
+            raise
+        info['active'] = target
+        self.settings.write_text(json.dumps(info, indent=2) + '\n')
+        print('Active desktop: ' + target + '\nBackup: ' + str(archive))
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', nargs='?', default='apply', choices=['apply', 'restore', 'toggle', 'status', 'menu'])
+    parser.add_argument('--offline', action='store_true', help='write files without changing the running session or GSettings')
+    parser.add_argument('--target-home', help='stage an installation in another directory (always offline)')
+    parser.add_argument('--game-source', help='local NordWebClient checkout to import DIN/Verdana fonts from')
+    parser.add_argument('--dry-run', action='store_true', help='list managed files without writing anything')
+    args = parser.parse_args()
+    desktop = Desktop(args)
+    if args.dry_run:
+        print('\n'.join(str(path) for path in desktop.files.values())); return
+    if args.action == 'status':
+        print(json.dumps(desktop.state_info(), indent=2)); return
+    if args.action == 'menu':
+        result = command('wofi', '--show', 'dmenu', '--prompt', 'Desktop theme', '--height', '250', '--cache-file', '/dev/null', input='Nord\nPrevious desktop\n', text=True, capture_output=True)
+        if result.returncode or result.stdout.strip() not in ['Nord', 'Previous desktop']: return
+        args.action = 'apply' if result.stdout.strip() == 'Nord' else 'restore'
+    if args.action in ['apply', 'toggle'] and not desktop.offline:
+        required = ['sway', 'swaymsg', 'waybar', 'wofi', 'mako', 'makoctl', 'foot', 'grim', 'gdbus', 'flock', 'pkill']
+        missing = [name for name in required if not shutil.which(name)]
+        if missing: raise RuntimeError('Install missing dependencies first: ' + ', '.join(missing))
+    desktop.state.mkdir(parents=True, exist_ok=True)
+    with (desktop.state / 'switch.lock').open('w') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        target = 'nord' if args.action == 'apply' else 'previous'
+        if args.action == 'toggle': target = 'previous' if desktop.state_info()['active'] == 'nord' else 'nord'
+        desktop.switch(target)
+
+if __name__ == '__main__':
+    try: main()
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        print('Nord: ' + str(exc), file=sys.stderr); sys.exit(1)

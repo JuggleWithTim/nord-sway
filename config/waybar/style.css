@@ -1,0 +1,203 @@
+* { border: none; border-radius: 0; font-family: "@UI_FONT@", "FontAwesome", sans-serif; font-size: 14px; min-height: 0; }
+window#waybar { background: linear-gradient(#ffffff, #edf0ef 48%, #d7dfe2); color: #294457; border: 1px solid #8198a5; border-radius: 8px; box-shadow: inset 0 0 0 2px #ffffff, 0 3px 0 rgba(12,37,57,.25); }
+.modules-left { padding-left: 8px; }
+.modules-right { padding-right: 8px; }
+#custom-launch { background: url('@DATA@/nord-sway/assets/home.png') 12px center / 28px 28px no-repeat, linear-gradient(#ffffff, #dce4e6); color: #28475b; font-size: 22px; padding: 0 19px 0 49px; margin: 7px 12px 7px 0; border: 1px solid #9cabb2; border-radius: 5px; box-shadow: inset 0 1px #fff, 0 1px #fff; }
+#custom-launch:hover { background-color: #fff; color: #b96818; }
+#workspaces button { background: linear-gradient(#fff, #dce2e4); color: #617582; padding: 0 14px; margin: 9px 3px; border: 1px solid #a7b7bd; border-radius: 4px; box-shadow: inset 0 1px #fff, 0 1px #fff; }
+#workspaces button.focused { background: linear-gradient(#d1eea5, #9fc95f); color: #314d21; border-color: #709347; box-shadow: inset 0 1px #efffd9, 0 1px #fff; }
+#workspaces button.urgent { background: #ffd89f; border-color: #c47729; color: #6e3715; }
+#workspaces button:hover { background: #fff; color: #1b526f; }
+#window { color: #617480; font-size: 13px; padding: 0 18px; margin: 17px 0 17px 13px; border-left: 1px solid #b8c6cc; }
+window#waybar.empty #window { padding: 0; margin: 0; border: 0; }
+#mode { color: #9b541c; padding: 0 12px; }
+#clock { color: #294c63; background: #dae3e7; border: 1px solid #b0c0c7; border-radius: 5px; box-shadow: inset 0 1px 2px rgba(57,82,96,.15), 0 1px #fff; padding: 0 22px; margin: 10px 0; }
+#cpu, #memory, #network, #pulseaudio { padding: 0 12px; }
+#cpu, #memory { font-size: 13px; color: #536d7c; }
+#network { color: #4a762f; }
+#pulseaudio { color: #2e5870; }
+#pulseaudio.muted, #network.disconnected { color: #986752; }
+#tray { padding: 0 12px; }
+#custom-theme, #custom-session { font-size: 21px; color: #476678; padding: 0 13px; margin: 10px 0 10px 6px; border-left: 1px solid #b5c4cb; }
+#custom-theme:hover, #custom-session:hover { color: #c36c1c; }
+tooltip { background: #fbfcfa; border: 1px solid #8dabb9; border-radius: 6px; box-shadow: inset 0 0 0 1px white; }
+tooltip label { color: #294457; padding: 9px; }
+
+/* Original Nord controls: transparent caps and a seamless repeated center. */
+#custom-launch, #workspaces button, #custom-help, #custom-screenshot, #custom-theme, #custom-session {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-launch:hover, #workspaces button:hover, #custom-help:hover, #custom-screenshot:hover, #custom-theme:hover, #custom-session:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#workspaces button:active, #workspaces button.focused {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/buttons/button_down_left.png'), url('@DATA@/nord-sway/assets/buttons/button_down_right.png'), url('@DATA@/nord-sway/assets/buttons/button_down_middle_wide.png');
+  background-size: 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-launch { margin: 8px 10px 8px 0; }
+#workspaces button { margin: 8px 2px; padding: 0 14px; color: #526470; }
+#workspaces button.focused { color: #3f681f; font-weight: bold; }
+#workspaces button label { background: transparent; border: none; border-image: none; box-shadow: none; }
+#custom-help, #custom-screenshot, #custom-theme, #custom-session { min-width: 38px; padding: 0; margin: 8px 3px; }
+#custom-help { margin-left: 12px; }
+#network { background: url('@DATA@/nord-sway/assets/icons/onlinelist.png') 7px center / 25px 25px no-repeat; padding-left: 38px; }
+#cpu { background: url('@DATA@/nord-sway/assets/icons/playerinfo.png') 7px center / 24px 24px no-repeat; padding-left: 36px; }
+#custom-launch {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/home.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: 12px center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-launch:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/home.png'), url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: 12px center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-help {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/help.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-help:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/help.png'), url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-screenshot {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/screenshot.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-screenshot:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/screenshot.png'), url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-theme {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/garderob.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-theme:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/garderob.png'), url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-session {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/buildmenu.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_left.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_right.png'), url('@DATA@/nord-sway/assets/buttons/button_normal_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}
+#custom-session:hover {
+  background-color: transparent;
+  background-image: url('@DATA@/nord-sway/assets/icons/buildmenu.png'), url('@DATA@/nord-sway/assets/buttons/button_over_left.png'), url('@DATA@/nord-sway/assets/buttons/button_over_right.png'), url('@DATA@/nord-sway/assets/buttons/button_over_middle_wide.png');
+  background-size: 28px 28px, 10px 100%, 10px 100%, calc(100% - 18px) 100%;
+  background-position: center, left center, right center, center;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid transparent;
+  border-radius: 0;
+  border-image: none;
+  box-shadow: none;
+}

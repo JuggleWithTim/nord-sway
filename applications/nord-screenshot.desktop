@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Nord Screenshot
+Exec=@BIN@/nord-shot
+Icon=@DATA@/nord-sway/assets/icons/screenshot.png
+Terminal=false
+Categories=Utility;
